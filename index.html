@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Mini GPT</title>
+<style>
+body { font-family: Arial; padding: 20px; background:#111; color:white }
+textarea, input { width:100%; padding:10px; margin:10px 0; background:#222; color:white; border:1px solid #444 }
+button { padding:10px 20px; background:#00aaff; border:none; color:black; cursor:pointer; font-weight:bold }
+</style>
+</head>
+<body>
+
+<h2>💬 Mini GPT (GPT-5.1 Supported)</h2>
+
+<input id="key" placeholder="Вставь сюда свой OpenAI API KEY">
+<textarea id="msg" rows="4" placeholder="Напиши что-нибудь..."></textarea>
+<button onclick="send()">Отправить</button>
+
+<pre id="out"></pre>
+
+<script>
+async function send() {
+  const apiKey = document.getElementById('key').value;
+  const message = document.getElementById('msg').value;
+
+  document.getElementById('out').textContent = "Думаю...";
+
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: "gpt-5.1",
+      messages: [{ role: "user", content: message }]
+    })
+  });
+
+  const data = await res.json();
+  document.getElementById('out').textContent =
+    data?.choices?.[0]?.message?.content || "Ошибка";
+}
+</script>
+
+</body>
+</html>
