@@ -2,22 +2,75 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Mini GPT</title>
+<title>Mini ChatGPT</title>
 <style>
-body { font-family: Arial; padding: 20px; background:#111; color:white }
-textarea, input { width:100%; padding:10px; margin:10px 0; background:#222; color:white; border:1px solid #444 }
-button { padding:10px 20px; background:#00aaff; border:none; color:black; cursor:pointer; font-weight:bold }
+    body {
+        margin: 0;
+        padding: 0;
+        background: #111;
+        color: #fff;
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    textarea, input {
+        width: 100%;
+        background: #222;
+        color: #fff;
+        border: 1px solid #444;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 6px;
+        font-size: 16px;
+        resize: none;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background: dodgerblue;
+        border: none;
+        color: #fff;
+        font-size: 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+
+    button:hover {
+        background: #0d6efd;
+    }
+
+    .answer {
+        white-space: pre-wrap;
+        padding: 10px;
+        background: #222;
+        border-radius: 6px;
+        border: 1px solid #333;
+        min-height: 60px;
+    }
 </style>
 </head>
 <body>
 
-<h2>💬 Mini GPT (GPT-5.1 Supported)</h2>
+<div class="container">
 
-<input id="key" placeholder="Вставь сюда свой OpenAI API KEY">
-<textarea id="msg" rows="4" placeholder="Напиши что-нибудь..."></textarea>
-<button onclick="send()">Отправить</button>
+    <h2>🔥 Mini ChatGPT</h2>
 
-<pre id="out"></pre>
+    <input id="key" type="password" placeholder="Введите ваш OpenAI API Key">
+
+    <textarea id="msg" rows="4" placeholder="Введите сообщение..."></textarea>
+
+    <button onclick="send()">Отправить</button>
+
+    <div id="out" class="answer">Ответ появится здесь...</div>
+
+</div>
 
 <script>
 async function send() {
@@ -25,8 +78,15 @@ async function send() {
   const message = document.getElementById('msg').value.trim();
   const out = document.getElementById('out');
 
-  if (!apiKey) return out.textContent = "❌ Нет API ключа!";
-  if (!message) return out.textContent = "❌ Пустое сообщение!";
+  if (!apiKey) {
+    out.textContent = "❌ Нет API ключа!";
+    return;
+  }
+
+  if (!message) {
+    out.textContent = "❌ Пустое сообщение!";
+    return;
+  }
 
   out.textContent = "⏳ Думаю...";
 
@@ -38,24 +98,23 @@ async function send() {
         "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4.1-mini",  // gpt-5.1 нельзя в браузере без прокси! (важно)
-        messages: [{ role: "user", content: message }],
-      }),
+        model: "gpt-4.1-mini", // Работает в браузере!
+        messages: [{ role: "user", content: message }]
+      })
     });
 
     const data = await res.json();
-    
-    // Показываем реально что пришло
-    console.log(data);
-    
+    console.log("Ответ API:", data);
+
     if (data.error) {
       out.textContent = "❌ API Error: " + data.error.message;
       return;
     }
 
-    out.textContent = data.choices?.[0]?.message?.content || "❌ Не могу получить ответ";
-  } 
-  catch (e) {
+    const answer = data.choices?.[0]?.message?.content;
+    out.textContent = answer || "❌ Нет ответа";
+
+  } catch (e) {
     out.textContent = "❌ JS Error: " + e.message;
   }
 }
