@@ -21,26 +21,43 @@ button { padding:10px 20px; background:#00aaff; border:none; color:black; cursor
 
 <script>
 async function send() {
-  const apiKey = document.getElementById('key').value;
-  const message = document.getElementById('msg').value;
+  const apiKey = document.getElementById('key').value.trim();
+  const message = document.getElementById('msg').value.trim();
+  const out = document.getElementById('out');
 
-  document.getElementById('out').textContent = "Думаю...";
+  if (!apiKey) return out.textContent = "❌ Нет API ключа!";
+  if (!message) return out.textContent = "❌ Пустое сообщение!";
 
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: "gpt-5.1",
-      messages: [{ role: "user", content: message }]
-    })
-  });
+  out.textContent = "⏳ Думаю...";
 
-  const data = await res.json();
-  document.getElementById('out').textContent =
-    data?.choices?.[0]?.message?.content || "Ошибка";
+  try {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4.1-mini",  // gpt-5.1 нельзя в браузере без прокси! (важно)
+        messages: [{ role: "user", content: message }],
+      }),
+    });
+
+    const data = await res.json();
+    
+    // Показываем реально что пришло
+    console.log(data);
+    
+    if (data.error) {
+      out.textContent = "❌ API Error: " + data.error.message;
+      return;
+    }
+
+    out.textContent = data.choices?.[0]?.message?.content || "❌ Не могу получить ответ";
+  } 
+  catch (e) {
+    out.textContent = "❌ JS Error: " + e.message;
+  }
 }
 </script>
 
