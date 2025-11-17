@@ -2,7 +2,7 @@ const chat = document.getElementById("chat");
 const input = document.getElementById("userInput");
 
 // ВСТАВЬ СЮДА СВОЙ API КЛЮЧ
-const API_KEY = "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";
+const API_KEY = "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";
 
 function addMessage(text, type) {
   const msg = document.createElement("div");
